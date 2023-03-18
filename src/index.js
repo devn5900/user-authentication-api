@@ -6,7 +6,7 @@ const morgan = require("morgan");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-
+const port = process.env.PORT || 3030
 const app = express();
 app.use(cors());
 /*******************Logger Middleware*************************/
@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 app.all("*", (req, res) => {
   res.send("Not Found");
 });
-app.listen(process.env.port, () => {
-  console.log(`server is running on localhost:${process.env.port}`);
+app.listen(port, () => {
+  console.log(`server is running on localhost:${port}`);
   connectionDB();
 });
