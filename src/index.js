@@ -6,23 +6,23 @@ const morgan = require("morgan");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const port = process.env.PORT || 3030
+const port = process.env.PORT || 3030;
 const app = express();
 app.use(cors());
 /*******************Logger Middleware*************************/
 // const accessLogStream = fs.createWriteStream(
-//  path.join(__dirname, "../access.log"),
-//  {
- //   flags: "a",
- // }
-//);
-//app.use(
-  //morgan(
-    //":method :url :status :res[content-length] - :response-time ms :date[web] ",
-   // {
-   //   stream: accessLogStream,
-   // }
- // )
+//   path.join(__dirname, "../access.log"),
+//   {
+//     flags: "a",
+//   }
+// );
+// app.use(
+//   morgan(
+//     ":method :url :user-agent :status :res[content-length] - :response-time ms :date[web] ",
+//     {
+//       stream: accessLogStream,
+//     }
+//   )
 // );
 /*************************************************************/
 app.use(express.json());

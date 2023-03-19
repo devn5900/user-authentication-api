@@ -29,15 +29,17 @@ const signup = (req, res, next) => {
     res.status(206).send({ msg: "Invalid Data" });
     return;
   }
+
   if (password !== confirm_password) {
     res.status(206).send({ msg: "Password and Confirm Password is not same" });
     return;
   }
+
   next();
 };
 const login = (req, res, next) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
+  const { email, password } = req.body;
+  if (!email || !password) {
     res.status(206).send({ msg: "Invalid Credentials" });
     return;
   }
@@ -79,9 +81,34 @@ const isAuthrized = async (req, res, next) => {
     }
   }
 };
+const isLoggedin = async (req, res, next) => {
+  let token = req.headers.authorization;
+  token = token?.split(" ")[1];
+  if (!token) {
+    res.status(401).send({ msg: "You are not Authorized for this action" });
+    return;
+  } else {
+    try {
+      const status = await userModel.exists({
+        $and: [{ token }],
+      });
+      if (status !== null) {
+        next();
+      } else {
+        res
+          .status(401)
+          .send({ msg: "You are not Authorized for this action." });
+      }
+    } catch (error) {
+      res.status(500).send({ msg: "Internal Server Error !" });
+    }
+  }
+  return;
+};
 module.exports = {
   signup,
   login,
   isUserExist,
+  isLoggedin,
   isAuthrized,
 };

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema(
   {
     username: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     dob: { type: String, required: true },
     role: { type: String, required: true, enum: ["Admin", "Explorer"] },
     location: { type: String, required: true },

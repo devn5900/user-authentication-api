@@ -6,6 +6,7 @@ const {
   login,
   isUserExist,
   isAuthrized,
+  isLoggedin,
 } = require("../middleware/signup.middleware");
 const router = Router();
 
@@ -20,18 +21,18 @@ router.post("/signup", async (req, res) => {
     await status.save();
     res.status(200).send({ msg: "Singedup Successfully !" });
   } catch (error) {
-    res.status(500).send({ msg: "Internal Server Error" });
+    res.status(206).send({ msg: "Email is already Present" });
   }
 });
 /************************************************************/
 /***********************Login Route*************************************/
 router.use("/login", login); // login middleware
 router.post("/login", async (req, res) => {
-  let { username, password } = req.body;
+  let { email, password } = req.body;
   try {
     //  db.users.find({ $and: [{ username: "Devn" }, { password: "dev" }] });
     const status = await userModel.findOne({
-      $and: [{ username }, { password }],
+      $and: [{ email }, { password }],
     });
     if (status !== null) {
       res.status(202).send(
@@ -51,11 +52,18 @@ router.post("/login", async (req, res) => {
 /************************************************************/
 
 /***********************Single user**************************/
-router.get("/user/:id", (req, res) => {
-  res.send("get");
+router.use("/singleuser", isLoggedin);
+router.get("/singleuser/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const status = await userModel.findById({ _id: id });
+    res.send(JSON.stringify(status));
+  } catch (error) {
+    res.send({ msg: "No user found" });
+  }
 });
-/************************************************************/
 router.use("/", isAuthrized); // Authorization middleware
+/************************************************************/
 
 /**************************Get All Users*********************************/
 router.get("/allusers", async (req, res) => {
@@ -67,6 +75,7 @@ router.get("/allusers", async (req, res) => {
   }
 });
 /***********************************************************/
+
 /*************************Add User***********************************/
 router.use("/edit/:id", isUserExist); // user credential middleware
 router.patch("/edit/:id", async (req, res) => {
@@ -96,6 +105,7 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 /*************************************************************************/
+
 router.all("*", (req, res) => {
   res.send("Not Found");
 });
