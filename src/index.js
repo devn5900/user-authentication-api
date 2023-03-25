@@ -6,7 +6,8 @@ const morgan = require("morgan");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const port = process.env.PORT || 3030;
+const { notesRouter } = require("../controller/notes.route");
+
 const app = express();
 app.use(cors());
 /*******************Logger Middleware*************************/
@@ -18,7 +19,7 @@ app.use(cors());
 // );
 // app.use(
 //   morgan(
-//     ":method :url :user-agent :status :res[content-length] - :response-time ms :date[web] ",
+//     ":method :url :status :res[content-length] - :response-time ms :date[web] ",
 //     {
 //       stream: accessLogStream,
 //     }
@@ -27,13 +28,14 @@ app.use(cors());
 /*************************************************************/
 app.use(express.json());
 app.use("/user", userRouter);
+app.use("/notes", notesRouter);
 app.get("/", (req, res) => {
   res.send(`Welcome to User's API`);
 });
 app.all("*", (req, res) => {
   res.send("Not Found");
 });
-app.listen(port, () => {
-  console.log(`server is running on localhost:${port}`);
+app.listen(process.env.port, () => {
+  console.log(`server is running on localhost:${process.env.port}`);
   connectionDB();
 });

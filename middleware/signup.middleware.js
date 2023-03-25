@@ -1,5 +1,5 @@
 const userModel = require("../model/user.model");
-
+const jwt = require("jsonwebtoken");
 const signup = (req, res, next) => {
   const { username, email, dob, role, location, password, confirm_password } =
     req.body;
@@ -29,12 +29,10 @@ const signup = (req, res, next) => {
     res.status(206).send({ msg: "Invalid Data" });
     return;
   }
-
   if (password !== confirm_password) {
     res.status(206).send({ msg: "Password and Confirm Password is not same" });
     return;
   }
-
   next();
 };
 const login = (req, res, next) => {
@@ -68,47 +66,24 @@ const isAuthrized = async (req, res, next) => {
     return;
   } else {
     try {
-      const status = await userModel.exists({
-        $and: [{ token }, { role: "Admin" }],
+      jwt.verify(token, "devn", (err, stat) => {
+        if (stat) {
+          req.body.userID = stat._id;
+          next();
+        } else {
+          res
+            .status(401)
+            .send({ msg: "You are not Authorized for this action" });
+        }
       });
-      if (status !== null) {
-        next();
-      } else {
-        res.status(401).send({ msg: "You are not Authorized for this action" });
-      }
     } catch (error) {
       res.status(500).send({ msg: "Internal Server Error !" });
     }
   }
-};
-const isLoggedin = async (req, res, next) => {
-  let token = req.headers.authorization;
-  token = token?.split(" ")[1];
-  if (!token) {
-    res.status(401).send({ msg: "You are not Authorized for this action" });
-    return;
-  } else {
-    try {
-      const status = await userModel.exists({
-        $and: [{ token }],
-      });
-      if (status !== null) {
-        next();
-      } else {
-        res
-          .status(401)
-          .send({ msg: "You are not Authorized for this action." });
-      }
-    } catch (error) {
-      res.status(500).send({ msg: "Internal Server Error !" });
-    }
-  }
-  return;
 };
 module.exports = {
   signup,
   login,
   isUserExist,
-  isLoggedin,
   isAuthrized,
 };
